@@ -1,0 +1,46 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#003d6b"/>
+      <stop offset="50%" style="stop-color:#0057a8"/>
+      <stop offset="100%" style="stop-color:#00c8e0"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00c8e0;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#003d6b;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Wave decoration -->
+  <path d="M0 400 C200 350 400 450 600 400 C800 350 1000 430 1200 400 L1200 630 L0 630 Z" fill="url(#wave)"/>
+  <path d="M0 480 C250 440 500 500 750 460 C900 440 1100 480 1200 460 L1200 630 L0 630 Z" fill="white" fill-opacity="0.05"/>
+
+  <!-- Bubble decorations -->
+  <circle cx="80" cy="120" r="40" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+  <circle cx="1120" cy="500" r="60" fill="none" stroke="white" stroke-opacity="0.08" stroke-width="2"/>
+  <circle cx="1050" cy="80" r="25" fill="none" stroke="#00c8e0" stroke-opacity="0.2" stroke-width="2"/>
+
+  <!-- Logo infinity symbol -->
+  <g transform="translate(500, 140)">
+    <path d="M30 75 C30 57.33 44.33 43 62 43 C79.67 43 89 52.25 92 75 C95 97.75 104.33 107 122 107 C139.67 107 154 92.67 154 75 C154 57.33 139.67 43 122 43 C104.33 43 95 52.25 92 75 C89 97.75 79.67 107 62 107 C44.33 107 30 92.67 30 75 Z"
+      fill="none" stroke="#00c8e0" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <!-- Company name -->
+  <text x="600" y="310" font-family="Arial, sans-serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" letter-spacing="1">Piscinas Mundo Fibra</text>
+
+  <!-- Tagline -->
+  <text x="600" y="375" font-family="Arial, sans-serif" font-size="26" fill="#00c8e0" text-anchor="middle" letter-spacing="2">PISCINAS DE FIBRA DE VIDRIO EN CHILE</text>
+
+  <!-- Separator -->
+  <line x1="400" y1="410" x2="800" y2="410" stroke="#00c8e0" stroke-opacity="0.4" stroke-width="1"/>
+
+  <!-- Features -->
+  <text x="600" y="460" font-family="Arial, sans-serif" font-size="20" fill="white" fill-opacity="0.7" text-anchor="middle">Alta Durabilidad  ·  Fácil Mantenimiento  ·  Cotiza Online</text>
+
+  <!-- WhatsApp -->
+  <text x="600" y="520" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" fill-opacity="0.5" text-anchor="middle">+56 9 5408 8120  ·  @piscinasmundofibra</text>
+</svg>
