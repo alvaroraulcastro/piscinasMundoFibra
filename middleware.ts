@@ -1,16 +1,10 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import NextAuth from "next-auth";
+import authConfig from "./auth.config";
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  if (pathname.startsWith("/admin/login")) {
-    return NextResponse.next();
-  }
-  if (pathname.startsWith("/admin") && !req.auth) {
-    return NextResponse.redirect(new URL("/admin/login", req.nextUrl.origin));
-  }
-  return NextResponse.next();
-});
+/**
+ * Importa solo `auth.config` (sin Prisma/bcrypt) para mantener el bundle Edge < 1 MB en Vercel.
+ */
+export default NextAuth(authConfig).auth;
 
 export const config = {
   matcher: ["/admin/:path*"],
