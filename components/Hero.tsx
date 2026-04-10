@@ -71,10 +71,10 @@ export default function Hero() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="#cotizador" className="btn-primary text-lg py-4 px-10">
+          <a href="/#cotizador" className="btn-primary text-lg py-4 px-10">
             Cotizar mi piscina
           </a>
-          <a href="#ventajas" className="btn-secondary text-lg py-4 px-10">
+          <a href="/#ventajas" className="btn-secondary text-lg py-4 px-10">
             Conocer más
           </a>
         </div>
@@ -95,7 +95,7 @@ export default function Hero() {
       </div>
 
       <a
-        href="#ventajas"
+        href="/#ventajas"
         className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 hover:text-white animate-bounce"
         aria-label="Desplazar hacia abajo"
       >

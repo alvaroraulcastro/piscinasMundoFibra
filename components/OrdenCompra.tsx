@@ -5,16 +5,19 @@ import type { CotizacionData } from "./Cotizador";
 import { CheckCircle, Download, MessageCircle, RotateCcw } from "lucide-react";
 
 const accesoriosMap: Record<string, string> = {
-  bomba_calor: "Bomba de calefacción Aquark",
+  "bomba-calor": "Bomba de calefacción Aquark",
   filtro: "Sistema de filtración",
   escalera: "Escalera inox",
   cobertor: "Cobertor de seguridad",
   iluminacion: "Iluminación LED",
-  robotlimpiador: "Robot limpiador",
+  "robot-limpiador": "Robot limpiador",
 };
 
 type Props = {
   data: CotizacionData;
+  /** Número devuelto por POST /api/orders (fuente de verdad) */
+  serverOrderNumber?: string;
+  serverOrderId?: string;
   onWhatsApp: () => void;
   onReset: () => void;
 };
@@ -28,8 +31,15 @@ function generateOrderNumber(): string {
   return `PMF-${y}${m}${d}-${rand}`;
 }
 
-export default function OrdenCompra({ data, onWhatsApp, onReset }: Props) {
-  const orderNumber = useRef(generateOrderNumber());
+export default function OrdenCompra({
+  data,
+  serverOrderNumber,
+  serverOrderId,
+  onWhatsApp,
+  onReset,
+}: Props) {
+  const fallbackRef = useRef(generateOrderNumber());
+  const orderNumberDisplay = serverOrderNumber ?? fallbackRef.current;
   const fecha = new Date().toLocaleDateString("es-CL", {
     day: "2-digit",
     month: "long",
@@ -46,15 +56,26 @@ export default function OrdenCompra({ data, onWhatsApp, onReset }: Props) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  useEffect(() => {
+    const clearPrintMode = () => {
+      document.documentElement.classList.remove("print-order-only");
+    };
+    window.addEventListener("afterprint", clearPrintMode);
+    return () => window.removeEventListener("afterprint", clearPrintMode);
+  }, []);
+
   const handlePrint = () => {
-    window.print();
+    document.documentElement.classList.add("print-order-only");
+    requestAnimationFrame(() => {
+      window.print();
+    });
   };
 
   return (
-    <section id="cotizador" className="py-24 bg-gray-50 min-h-screen">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Success header */}
-        <div className="text-center mb-8">
+    <section id="cotizador" className="py-24 bg-gray-50 min-h-screen print:py-0 print:min-h-0 print:bg-white">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 print:max-w-none print:px-0">
+        {/* Cabecera de éxito: no entra en PDF / impresión */}
+        <div className="text-center mb-8 print-order-exclude">
           <CheckCircle className="mx-auto text-green-500 mb-4" size={56} />
           <h2 className="text-3xl font-extrabold text-brand-blue mb-2">
             ¡Orden de Compra Generada!
@@ -92,8 +113,11 @@ export default function OrdenCompra({ data, onWhatsApp, onReset }: Props) {
             </div>
             <div className="text-right">
               <p className="text-white font-bold text-lg">ORDEN DE COTIZACIÓN</p>
-              <p className="text-brand-cyan font-mono text-sm mt-1">{orderNumber.current}</p>
+              <p className="text-brand-cyan font-mono text-sm mt-1">{orderNumberDisplay}</p>
               <p className="text-white/60 text-xs mt-1">{fecha}</p>
+              {serverOrderId && (
+                <p className="text-white/40 text-[10px] mt-1 font-mono">Ref: {serverOrderId}</p>
+              )}
             </div>
           </div>
 
@@ -191,7 +215,7 @@ export default function OrdenCompra({ data, onWhatsApp, onReset }: Props) {
           {/* Footer de la orden */}
           <div className="bg-gray-50 px-8 py-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
             <span>Piscinas Mundo Fibra · @piscinasmundofibra</span>
-            <span>{orderNumber.current}</span>
+            <span>{orderNumberDisplay}</span>
           </div>
         </div>
 

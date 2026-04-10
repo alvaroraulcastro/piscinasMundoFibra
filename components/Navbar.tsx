@@ -5,11 +5,11 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
-  { href: "#ventajas", label: "Ventajas" },
-  { href: "#tecnologia", label: "Tecnología" },
-  { href: "#colores", label: "Colores" },
-  { href: "#cotizador", label: "Cotizar" },
-  { href: "#contacto", label: "Contacto" },
+  { href: "/#ventajas", label: "Ventajas" },
+  { href: "/#tecnologia", label: "Tecnología" },
+  { href: "/#colores", label: "Colores" },
+  { href: "/#cotizador", label: "Cotizar" },
+  { href: "/#contacto", label: "Contacto" },
 ];
 
 export default function Navbar() {
@@ -49,7 +49,7 @@ export default function Navbar() {
               </a>
             ))}
             <a
-              href="#cotizador"
+              href="/#cotizador"
               className="btn-primary text-sm py-2 px-6 inline-block"
             >
               Cotizar ahora
@@ -78,7 +78,7 @@ export default function Navbar() {
               </a>
             ))}
             <a
-              href="#cotizador"
+              href="/#cotizador"
               className="btn-primary text-center text-sm py-2 px-6"
               onClick={() => setIsOpen(false)}
             >

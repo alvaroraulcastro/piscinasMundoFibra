@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Autenticación y Usuarios ─────────────────────────
+
+enum Role {
+  ADMIN
+  VENDEDOR
+  CLIENTE
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
+  phone          String?
+  passwordHash   String
+  role           Role      @default(CLIENTE)
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  orders         Order[]   @relation("ClientOrders")
+  assignedOrders Order[]   @relation("SellerOrders")
+  orderHistory   OrderHistory[]
+
+  @@map("users")
+}
+
+// ─── Órdenes de Compra ────────────────────────────────
+
+enum OrderStatus {
+  NUEVA
+  EN_REVISION
+  COTIZADA
+  ACEPTADA
+  RECHAZADA
+  EN_FABRICACION
+  LISTA_ENTREGA
+  ENTREGADA
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  orderNumber    String       @unique
+  status         OrderStatus  @default(NUEVA)
+
+  // Datos del cliente
+  clientName     String
+  clientEmail    String
+  clientPhone    String
+
+  // Dimensiones
+  largo          Float
+  ancho          Float
+  profundidad    Float
+
+  // Especificaciones
+  color          String
+  comentarios    String?
+
+  // Precio (lo asigna el admin al cotizar)
+  precioFinal    Float?
+  moneda         String       @default("CLP")
+
+  // Relaciones
+  clientId       String?
+  client         User?        @relation("ClientOrders", fields: [clientId], references: [id])
+
+  sellerId       String?
+  seller         User?        @relation("SellerOrders", fields: [sellerId], references: [id])
+
+  accesorios     OrderAccesorio[]
+  history        OrderHistory[]
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([status])
+  @@index([clientEmail])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderAccesorio {
+  id         String  @id @default(cuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  accesorioId String
+  accesorio   Accesorio @relation(fields: [accesorioId], references: [id])
+
+  cantidad   Int     @default(1)
+
+  @@unique([orderId, accesorioId])
+  @@map("order_accesorios")
+}
+
+model OrderHistory {
+  id          String      @id @default(cuid())
+  orderId     String
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  comment     String?
+
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime    @default(now())
+
+  @@index([orderId])
+  @@map("order_history")
+}
+
+// ─── Catálogo ─────────────────────────────────────────
+
+model ProductModel {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  largo       Float?
+  ancho       Float?
+  profundidad Float?
+  imageUrl    String?
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("product_models")
+}
+
+model Color {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  hex       String
+  gradient  String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("colors")
+}
+
+model Accesorio {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  precio      Float?
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  orders      OrderAccesorio[]
+
+  @@map("accesorios")
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("gallery_images")
+}
+
+// ─── Configuración del Sitio ──────────────────────────
+
+model SiteConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  label String?
+
+  @@map("site_config")
+}
+
+// ─── SEO ──────────────────────────────────────────────
+
+model SeoEntry {
+  id          String  @id @default(cuid())
+  pageSlug    String  @unique
+  title       String
+  description String?
+  keywords    String?
+  ogTitle     String?
+  ogDescription String?
+  ogImage     String?
+
+  @@map("seo_entries")
+}
+
+// ─── Notificaciones ───────────────────────────────────
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  subject   String
+  body      String
+  variables String?
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("email_templates")
+}

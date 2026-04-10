@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import OrdenCompra from "./OrdenCompra";
+import type { CotizadorAccesorioItem } from "@/lib/catalog-public";
 
 export type CotizacionData = {
   nombre: string;
@@ -15,7 +16,7 @@ export type CotizacionData = {
   comentarios: string;
 };
 
-const coloresDisponibles = [
+const DEFAULT_COLORES = [
   "Celeste",
   "Azul Tahití",
   "Verde Turquesa",
@@ -24,13 +25,14 @@ const coloresDisponibles = [
   "Gris Claro",
 ];
 
-const accesoriosDisponibles = [
-  { id: "bomba_calor", label: "Bomba de calefacción Aquark", descripcion: "Calienta el agua todo el año" },
+/** Slugs deben coincidir con `Accesorio.slug` en BD (seed / admin catálogo) */
+const DEFAULT_ACCESORIOS: CotizadorAccesorioItem[] = [
+  { id: "bomba-calor", label: "Bomba de calefacción Aquark", descripcion: "Calienta el agua todo el año" },
   { id: "filtro", label: "Sistema de filtración", descripcion: "Arena o cartucho de alta eficiencia" },
   { id: "escalera", label: "Escalera inox", descripcion: "Escalera de acero inoxidable" },
   { id: "cobertor", label: "Cobertor de seguridad", descripcion: "Cobertor isotérmico y de seguridad" },
   { id: "iluminacion", label: "Iluminación LED", descripcion: "Luz sumergible multicolor" },
-  { id: "robotlimpiador", label: "Robot limpiador", descripcion: "Limpieza automática del fondo" },
+  { id: "robot-limpiador", label: "Robot limpiador", descripcion: "Limpieza automática del fondo" },
 ];
 
 const WHATSAPP_NUMBER = "56954088120";
@@ -56,7 +58,18 @@ function buildWhatsAppMessage(data: CotizacionData): string {
   );
 }
 
-export default function Cotizador() {
+type CotizadorProps = {
+  /** Nombres de color desde BD (catálogo admin). Si se omite, se usan valores por defecto. */
+  coloresDisponibles?: string[];
+  accesoriosDisponibles?: CotizadorAccesorioItem[];
+};
+
+export default function Cotizador({
+  coloresDisponibles: coloresProp,
+  accesoriosDisponibles: accesoriosProp,
+}: CotizadorProps = {}) {
+  const coloresDisponibles = coloresProp?.length ? coloresProp : DEFAULT_COLORES;
+  const accesoriosDisponibles = accesoriosProp?.length ? accesoriosProp : DEFAULT_ACCESORIOS;
   const [form, setForm] = useState<CotizacionData>({
     nombre: "",
     email: "",
@@ -70,6 +83,9 @@ export default function Cotizador() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Partial<CotizacionData>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [serverOrder, setServerOrder] = useState<{ orderNumber: string; id: string } | null>(null);
 
   const validate = (): boolean => {
     const newErrors: Partial<CotizacionData> = {};
@@ -105,11 +121,39 @@ export default function Cotizador() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
+    if (!validate()) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono,
+          largo: form.largo,
+          ancho: form.ancho,
+          profundidad: form.profundidad,
+          color: form.color,
+          comentarios: form.comentarios || undefined,
+          accesorios: form.accesorios,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(typeof data.error === "string" ? data.error : "No se pudo registrar la orden. Intenta de nuevo.");
+        return;
+      }
+      setServerOrder({ orderNumber: data.orderNumber, id: data.id });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setSubmitError("Error de red. Verifica tu conexión e intenta de nuevo.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -120,6 +164,8 @@ export default function Cotizador() {
 
   const handleReset = () => {
     setSubmitted(false);
+    setServerOrder(null);
+    setSubmitError("");
     setForm({
       nombre: "",
       email: "",
@@ -137,6 +183,8 @@ export default function Cotizador() {
     return (
       <OrdenCompra
         data={form}
+        serverOrderNumber={serverOrder?.orderNumber}
+        serverOrderId={serverOrder?.id}
         onWhatsApp={handleWhatsApp}
         onReset={handleReset}
       />
@@ -157,6 +205,11 @@ export default function Cotizador() {
           onSubmit={handleSubmit}
           className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 space-y-8"
         >
+          {submitError && (
+            <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm" role="alert">
+              {submitError}
+            </div>
+          )}
           {/* Datos de contacto */}
           <div>
             <h3 className="text-lg font-bold text-brand-blue mb-4 border-b border-gray-100 pb-2">
@@ -314,9 +367,10 @@ export default function Cotizador() {
 
           <button
             type="submit"
-            className="w-full btn-primary text-lg py-4"
+            disabled={submitting}
+            className="w-full btn-primary text-lg py-4 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Generar Orden de Compra
+            {submitting ? "Registrando orden…" : "Generar Orden de Compra"}
           </button>
         </form>
       </div>

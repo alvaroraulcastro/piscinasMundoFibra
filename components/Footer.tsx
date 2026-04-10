@@ -44,11 +44,12 @@ export default function Footer() {
             <h4 className="font-bold text-white mb-3">Navegación</h4>
             <ul className="space-y-2 text-sm text-white/50">
               {[
-                { href: "#ventajas", label: "Ventajas" },
-                { href: "#tecnologia", label: "Tecnología" },
-                { href: "#colores", label: "Colores" },
-                { href: "#cotizador", label: "Cotizador" },
-                { href: "#contacto", label: "Contacto" },
+                { href: "/#ventajas", label: "Ventajas" },
+                { href: "/#tecnologia", label: "Tecnología" },
+                { href: "/#colores", label: "Colores" },
+                { href: "/#cotizador", label: "Cotizador" },
+                { href: "/#contacto", label: "Contacto" },
+                { href: "/admin", label: "Administración" },
               ].map((link) => (
                 <li key={link.href}>
                   <a

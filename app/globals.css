@@ -33,3 +33,53 @@ html {
     @apply bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden;
   }
 }
+
+/*
+ * Impresión / PDF: solo la orden (tarjeta #orden-compra).
+ * La clase `print-order-only` se añade en <html> desde OrdenCompra al pulsar "Descargar / Imprimir".
+ */
+@media print {
+  @page {
+    margin: 12mm;
+    size: auto;
+  }
+
+  html.print-order-only body {
+    background: white !important;
+  }
+
+  html.print-order-only nav,
+  html.print-order-only footer {
+    display: none !important;
+  }
+
+  /* Oculta Hero, Ventajas, etc.; solo deja la sección del cotizador con la orden */
+  html.print-order-only main > *:not(#cotizador) {
+    display: none !important;
+  }
+
+  html.print-order-only #cotizador .print-order-exclude {
+    display: none !important;
+  }
+
+  html.print-order-only #cotizador {
+    min-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    background: white !important;
+  }
+
+  html.print-order-only #cotizador > .max-w-3xl {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  html.print-order-only #orden-compra {
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

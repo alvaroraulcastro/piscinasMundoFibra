@@ -1,4 +1,6 @@
-const colores = [
+import { toColorUi, type ColorUi } from "@/lib/color-ui";
+
+const STATIC_COLORS: ColorUi[] = [
   {
     nombre: "Celeste",
     hex: "#87CEEB",
@@ -38,7 +40,15 @@ const colores = [
   },
 ];
 
-export default function Colores() {
+type Props = {
+  /** Filas del catálogo (admin). Si está vacío se usan los colores estáticos por defecto. */
+  colors?: { name: string; hex: string; gradient?: string | null }[];
+};
+
+export default function Colores({ colors }: Props) {
+  const list: ColorUi[] =
+    colors && colors.length > 0 ? colors.map((c) => toColorUi(c)) : STATIC_COLORS;
+
   return (
     <section id="colores" className="py-24 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,7 +58,7 @@ export default function Colores() {
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-          {colores.map((color) => (
+          {list.map((color) => (
             <div key={color.nombre} className="flex flex-col items-center gap-3 group">
               <div
                 className={`w-full aspect-square rounded-2xl bg-gradient-to-br ${color.gradient} shadow-lg group-hover:scale-105 transition-transform duration-300 ${
@@ -58,16 +68,13 @@ export default function Colores() {
                   boxShadow: `0 8px 24px ${color.hex}55`,
                 }}
               >
-                {/* Pool shape silhouette */}
                 <div className="w-full h-full flex items-end justify-center pb-4 opacity-20">
                   <svg viewBox="0 0 80 30" className="w-3/4">
                     <rect x="5" y="5" width="70" height="20" rx="4" fill="white" />
                   </svg>
                 </div>
               </div>
-              <span className={`font-bold text-sm text-center ${color.textColor}`}>
-                {color.nombre}
-              </span>
+              <span className={`font-bold text-sm text-center ${color.textColor}`}>{color.nombre}</span>
             </div>
           ))}
         </div>
